@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Fact Page</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      padding: 3rem 2.5rem;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    }
+
+    .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .lang-btn {
+      padding: 0.4rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      background: #fff;
+      color: #4a5568;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .lang-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .lang-btn:focus-visible {
+      outline: 3px solid #667eea;
+      outline-offset: 2px;
+    }
+
+    #fact-display {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: #4a5568;
+      padding: 1.5rem;
+      background: #f7fafc;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      transition: opacity 0.3s ease;
+    }
+
+    #new-fact-btn {
+      padding: 0.85rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      letter-spacing: 0.3px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    #new-fact-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    #new-fact-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    #new-fact-btn:focus-visible {
+      outline: 3px solid #667eea;
+      outline-offset: 3px;
+    }
+
+    #loading-indicator {
+      margin-top: 1.2rem;
+      color: #718096;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #e2e8f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #error-message {
+      margin-top: 1.2rem;
+      padding: 0.8rem 1.2rem;
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      border-radius: 8px;
+      color: #c53030;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    #fallback-notice {
+      margin-top: 1.2rem;
+      padding: 0.6rem 1rem;
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 8px;
+      color: #92400e;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 2rem 1.5rem;
+      }
+
+      #fact-display {
+        font-size: 1rem;
+        padding: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="icon">💡</div>
+    <h1>Did You Know?</h1>
+
+    <div class="lang-switcher" role="group" aria-label="Language selection">
+      <button id="lang-en" class="lang-btn active" type="button" aria-label="English">
+        🇺🇸 English
+      </button>
+      <button id="lang-pt" class="lang-btn" type="button" aria-label="Português Brasil">
+        🇧🇷 Português
+      </button>
+    </div>
+
+    <section aria-labelledby="fact-heading">
+      <h2 id="fact-heading" class="hidden">Current Fact</h2>
+      <div id="fact-display" role="region" aria-live="polite" aria-atomic="true">
+        <!-- Fact text will be rendered here -->
+      </div>
+    </section>
+
+    <button
+      id="new-fact-btn"
+      type="button"
+      aria-label="Load a new random fact"
+    >
+      ✨ New Fact
+    </button>
+
+    <div id="loading-indicator" class="hidden" role="status" aria-live="polite">
+      <span class="spinner"></span>
+      Loading a new fact...
+    </div>
+
+    <div id="error-message" class="hidden" role="alert" aria-live="assertive">
+    </div>
+
+    <div id="fallback-notice" class="hidden" role="status" aria-live="polite">
+      📡 Showing cached fact — connection unavailable
+    </div>
+  </main>
+
+  <script type="module" src="./src/ui/main.js"></script>
+</body>
+</html>
